@@ -43,6 +43,7 @@ const loginUser = async (req, res) => {
 
   // Validate input
   if (!email || !password) {
+    
     return res.status(400).send({Error:"Email and password are required"});
   }
 

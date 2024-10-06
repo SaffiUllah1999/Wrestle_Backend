@@ -4,6 +4,7 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
+
 const mongoose = require("mongoose");
 mongoose.set("strictQuery", true);
 const dotenv = require("dotenv");
