@@ -1,6 +1,7 @@
 const AdminUsers = require("../models/AdminUser");
 const AdminNews = require('../models/AdminNews')
 const Users = require("../models/Users");
+const AdminEvents = require("../models/AdminEvents");
 
 /* GET ALL TODOS */
 const getUser = async (req, res) => {
@@ -119,6 +120,16 @@ const GetAllNews = async (req, res) => {
   }
 };
 
+const GetAllEvents = async (req, res) => {
+  try {
+    const users = await AdminEvents.find({}); // Fetch all users from the database
+    res.status(200).json(users); // Send the users as a JSON response
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Server Error"); // Send an error response if something goes wrong
+  }
+};
+
 module.exports = {
   deleteUser,
   updateUser,
@@ -126,5 +137,6 @@ module.exports = {
   getUser,
   loginUser,
   getUsers,
-  GetAllNews
+  GetAllNews,
+  GetAllEvents
 };
