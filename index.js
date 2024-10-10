@@ -1,7 +1,8 @@
 const express = require("express");
 const cors = require("cors");
 const app = express();
-app.use(express.json());
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ limit: '10mb', extended: true }));
 app.use(cors());
 
 
@@ -9,6 +10,8 @@ const mongoose = require("mongoose");
 mongoose.set("strictQuery", true);
 const dotenv = require("dotenv");
 const Auth = require("./routes/Authentication");
+const Admin = require("./routes/Admin")
+const Client = require("./routes/Client")
 dotenv.config();
 
 const PORT = 3000;
@@ -31,6 +34,8 @@ mongoose
 
 /* ROUTES */
 app.use(Auth);
+app.use(Admin);
+app.use(Client)
 
 /* LISTENING */
 app.listen(PORT, () => {

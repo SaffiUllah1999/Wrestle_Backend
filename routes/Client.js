@@ -6,16 +6,13 @@ const {
   getUser,
   loginUser,
   getUsers,
+  GetAllNews
 } = require("../controllers/userController");
 
-const Auth = express.Router();
+const Client = express.Router();
 
 /* GET TODO */
-Auth.post("/login", loginUser);
 
-Auth.get("/getusers", getUsers);
+Client.get('/GetNews',GetAllNews )
 
-/* ADD TODO */
-Auth.post("/register", saveUser);
-
-module.exports = Auth;
+module.exports = Client;
