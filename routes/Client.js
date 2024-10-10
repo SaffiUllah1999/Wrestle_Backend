@@ -7,7 +7,8 @@ const {
   loginUser,
   getUsers,
   GetAllNews,
-  GetAllEvents
+  GetAllEvents,
+  GetAllBlogs
 } = require("../controllers/userController");
 
 const Client = express.Router();
@@ -16,5 +17,6 @@ const Client = express.Router();
 
 Client.get('/GetNews',GetAllNews )
 Client.get('/GetEvents', GetAllEvents )
+Client.get('/GetBlogs', GetAllBlogs )
 
 module.exports = Client;
