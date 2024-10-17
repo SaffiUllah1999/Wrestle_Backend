@@ -1,26 +1,26 @@
 const mongoose = require("mongoose");
 
 const userSchema = new mongoose.Schema({
-  title: {
+  name: {
     type: String,
     required: true,
   },
-  image: {
+  email: {
     type: String,
     required: true,
-    required: true,
+    unique: true,
   },
-  description: {
+  event_id: {
     type: String,
     required: true,
+    unique: true,
   },
-  seats : {
-    type : Number,
-    require: true
-  }
-
+  seats: {
+    type: Number,
+    require: true,
+  },
 });
 
-const AdminEvents = mongoose.model("events", userSchema);
+const UserBooking = mongoose.model("booking", userSchema);
 
-module.exports = AdminEvents;
+module.exports = UserBooking;

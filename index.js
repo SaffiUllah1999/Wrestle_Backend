@@ -11,7 +11,8 @@ mongoose.set("strictQuery", true);
 const dotenv = require("dotenv");
 const Auth = require("./routes/Authentication");
 const Admin = require("./routes/Admin")
-const Client = require("./routes/Client")
+const Client = require("./routes/Client");
+const Wrestler = require("./routes/Wrestler");
 dotenv.config();
 
 const PORT = 3000;
@@ -36,6 +37,7 @@ mongoose
 app.use(Auth);
 app.use(Admin);
 app.use(Client)
+app.use(Wrestler)
 
 /* LISTENING */
 app.listen(PORT, () => {

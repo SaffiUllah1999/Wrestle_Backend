@@ -1,26 +1,21 @@
 const mongoose = require("mongoose");
 
 const userSchema = new mongoose.Schema({
-  title: {
+  name: {
     type: String,
     required: true,
   },
-  image: {
+  email: {
     type: String,
     required: true,
-    required: true,
+    unique: true,
   },
-  description: {
+  password: {
     type: String,
     required: true,
   },
-  seats : {
-    type : Number,
-    require: true
-  }
-
 });
 
-const AdminEvents = mongoose.model("events", userSchema);
+const Wrestler_Users = mongoose.model("wrestlerUsers", userSchema);
 
-module.exports = AdminEvents;
+module.exports = Wrestler_Users;

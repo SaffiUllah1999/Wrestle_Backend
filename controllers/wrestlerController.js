@@ -1,17 +1,18 @@
 const AdminUsers = require("../models/AdminUser");
 const AdminNews = require("../models/AdminNews");
-const Users = require("../models/Users");
+const Wrestler_Users = require("../models/Wrestler_Users");
 const AdminEvents = require("../models/AdminEvents");
 const AdminBlogs = require("../models/AdminBlogs");
+const Wrestler_ApplyEvent = require("../models/Wrestler_ApplyEvent");
 
 /* GET ALL TODOS */
-const getUser = async (req, res) => {
-  const todo = await Users.find();
+const getWrestlerUser = async (req, res) => {
+  const todo = await Wrestler_Users.find();
   res.send(todo);
 };
 
 /* SAVE A TODO */
-const saveUser = async (req, res) => {
+const saveWrestlerUser = async (req, res) => {
   const { name, email, password } = req.body; // Destructure the fields directly
 
   // const name = req.body.name
@@ -20,7 +21,7 @@ const saveUser = async (req, res) => {
 
   try {
     // Check for existing user
-    const existingUser = await Users.findOne({ email });
+    const existingUser = await Wrestler_Users.findOne({ email });
     if (existingUser) {
       return res.status(409).send({ Error: "Email Already Exists!" });
     }
@@ -29,7 +30,7 @@ const saveUser = async (req, res) => {
     // const hashedPassword = await bcrypt.hash(password, 10);
     // Create the new user
 
-    const newUser = await Users.create({
+    const newUser = await Wrestler_Users.create({
       name: name,
       email: email,
       password: password,
@@ -42,7 +43,7 @@ const saveUser = async (req, res) => {
   }
 };
 
-const loginUser = async (req, res) => {
+const loginWrestlerUser = async (req, res) => {
   const { email, password } = req.body;
 
   console.log("email");
@@ -54,7 +55,7 @@ const loginUser = async (req, res) => {
 
   try {
     // Find the user by email
-    const user = await Users.findOne({ email });
+    const user = await Wrestler_Users.findOne({ email });
     if (!user) {
       return res.status(401).send({ Error: "Invalid email or password" });
     }
@@ -71,6 +72,7 @@ const loginUser = async (req, res) => {
     // });
 
     // Send the token and user info (excluding password)
+    console.log(user)
     res.status(200).json({
       status: true,
       user: {
@@ -86,16 +88,16 @@ const loginUser = async (req, res) => {
 };
 
 /* UPDATE TODO */
-const updateUser = async (req, res) => {
+const updateWrestlerUser = async (req, res) => {
   const { _id, text } = req.body;
-  Users.findByIdAndUpdate(_id, { text })
+  Wrestler_Users.findByIdAndUpdate(_id, { text })
     .then(() => res.send("Todo updated successfully"))
     .catch((err) => console.log(err));
 };
 
-const getUsers = async (req, res) => {
+const getWrestlerUsers = async (req, res) => {
   try {
-    const users = await Users.find({}); // Fetch all users from the database
+    const users = await Wrestler_Users.find({}); // Fetch all users from the database
     res.status(200).json(users); // Send the users as a JSON response
   } catch (error) {
     console.error(error);
@@ -104,85 +106,49 @@ const getUsers = async (req, res) => {
 };
 
 /* DELETE TODO */
-const deleteUser = async (req, res) => {
+const deleteWrestlerUser = async (req, res) => {
   const { _id } = req.body;
-  Users.findByIdAndDelete(_id)
+  Wrestler_Users.findByIdAndDelete(_id)
     .then(() => res.send("Todo deleted successfully"))
     .catch((err) => console.log(err));
 };
 
-const GetAllNews = async (req, res) => {
-  try {
-    const users = await AdminNews.find({}); // Fetch all users from the database
-    res.status(200).json(users); // Send the users as a JSON response
-  } catch (error) {
-    console.error(error);
-    res.status(500).send("Server Error"); // Send an error response if something goes wrong
-  }
-};
+const participateWrestleEvent = async (req, res) => {
+  const { name, email } = req.body; // Destructure the fields directly
 
-const GetAllEvents = async (req, res) => {
-  try {
-    const users = await AdminEvents.find({}); // Fetch all users from the database
-    res.status(200).json(users); // Send the users as a JSON response
-  } catch (error) {
-    console.error(error);
-    res.status(500).send("Server Error"); // Send an error response if something goes wrong
-  }
-};
+  // const name = req.body.name
 
-const GetAllBlogs = async (req, res) => {
-  try {
-    const users = await AdminBlogs.find({}); // Fetch all users from the database
-    res.status(200).json(users); // Send the users as a JSON response
-  } catch (error) {
-    console.error(error);
-    res.status(500).send("Server Error"); // Send an error response if something goes wrong
-  }
-};
-
-const BookSeats = async (req, res) => {
-
-  const { eventId, name, email , seatsToBook } = req.body;
+  // console.log("User registration data:", name);
 
   try {
-    const event = await AdminEvents.findById(eventId);
-
-    if (!event) {
-      return res.status(404).json({ message: 'Event not found' });
+    // Check for existing user
+    const existingUser = await Wrestler_ApplyEvent.findOne({ email });
+    if (existingUser) {
+      return res.status(409).send({ Error: "Email Already Exists!" });
     }
 
-    if (event.seats < seatsToBook) {
-      return res.status(400).json({ message: 'Not enough seats available' });
-    }
-    
+    // Hash the password before saving
+    // const hashedPassword = await bcrypt.hash(password, 10);
+    // Create the new user
 
-    // Update the available seats
-    event.seats -= seatsToBook;
-    await event.save();
-
-    const newBooking = new UserBooking({
-      name,
-      email,
-      event_id: eventId,
-      seats: seatsToBook,
+    const newUser = await Wrestler_ApplyEvent.create({
+      name: name,
+      email: email,
+      password: password,
     });
-
-    res.status(200).json({ message: 'Seats booked successfully', event });
+    console.log("User added successfully!");
+    res.status(200).json({ status: true });
   } catch (error) {
-    res.status(500).json({ message: 'Error booking seats', error });
+    console.error(error);
+    res.status(500).send("Error creating user");
   }
-}
+};
 
 module.exports = {
-  deleteUser,
-  updateUser,
-  saveUser,
-  getUser,
-  loginUser,
-  getUsers,
-  GetAllNews,
-  GetAllEvents,
-  GetAllBlogs,
-  BookSeats
+  deleteWrestlerUser,
+  getWrestlerUsers,
+  updateWrestlerUser,
+  loginWrestlerUser,
+  saveWrestlerUser,
+  getWrestlerUser,
 };
