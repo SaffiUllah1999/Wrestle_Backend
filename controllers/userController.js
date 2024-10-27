@@ -3,6 +3,7 @@ const AdminNews = require("../models/AdminNews");
 const Users = require("../models/Users");
 const AdminEvents = require("../models/AdminEvents");
 const AdminBlogs = require("../models/AdminBlogs");
+const Wrestler_Hall = require("../models/WrestlerHallfame");
 
 /* GET ALL TODOS */
 const getUser = async (req, res) => {
@@ -121,6 +122,16 @@ const GetAllNews = async (req, res) => {
   }
 };
 
+const GetHallFame = async (req, res) => {
+  try {
+    const users = await Wrestler_Hall.find({}); // Fetch all users from the database
+    res.status(200).json(users); // Send the users as a JSON response
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Server Error"); // Send an error response if something goes wrong
+  }
+};
+
 const GetAllEvents = async (req, res) => {
   try {
     const users = await AdminEvents.find({}); // Fetch all users from the database
@@ -175,6 +186,7 @@ const BookSeats = async (req, res) => {
 }
 
 module.exports = {
+  GetHallFame,
   deleteUser,
   updateUser,
   saveUser,

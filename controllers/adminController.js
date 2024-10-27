@@ -3,6 +3,7 @@ const Users = require("../models/Users");
 const AdminNews = require("../models/AdminNews");
 const AdminEvents = require("../models/AdminEvents");
 const AdminBlogs = require("../models/AdminBlogs");
+const Wrestler_Hall = require("../models/WrestlerHallfame");
 
 /* GET ALL TODOS */
 const getUser = async (req, res) => {
@@ -56,7 +57,7 @@ const loginUser = async (req, res) => {
 };
 
 const uploadAdminNews = async (req, res) => {
-  const {  title, image, description } = req.body; // Destructure the fields directly
+  const { title, image, description } = req.body; // Destructure the fields directly
 
   // const name = req.body.name
 
@@ -74,10 +75,9 @@ const uploadAdminNews = async (req, res) => {
     // Create the new user
 
     const newUser = await AdminNews.create({
-     
-      title : title,
-      image : image,
-      description : description,
+      title: title,
+      image: image,
+      description: description,
     });
     console.log("User added successfully!");
     res.status(200).json({ status: true });
@@ -88,7 +88,7 @@ const uploadAdminNews = async (req, res) => {
 };
 
 const uploadAdminEvents = async (req, res) => {
-  const {  title, image, description } = req.body; // Destructure the fields directly
+  const { title, image, description } = req.body; // Destructure the fields directly
 
   // const name = req.body.name
 
@@ -106,10 +106,41 @@ const uploadAdminEvents = async (req, res) => {
     // Create the new user
 
     const newUser = await AdminEvents.create({
-     
-      title : title,
-      image : image,
-      description : description,
+      title: title,
+      image: image,
+      description: description,
+    });
+    console.log("User added successfully!");
+    res.status(200).json({ status: true });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Error creating user");
+  }
+};
+
+const uploadAdminHallofFame = async (req, res) => {
+  const { name, image, weight, success_rate } = req.body; // Destructure the fields directly
+
+  // const name = req.body.name
+
+  // console.log("User registration data:", name);
+
+  try {
+    // Check for existing user
+    // const existingUser = await Users.findOne({ email });
+    // if (existingUser) {
+    //   return res.status(409).send({ Error: "Email Already Exists!" });
+    // }
+
+    // Hash the password before saving
+    // const hashedPassword = await bcrypt.hash(password, 10);
+    // Create the new user
+
+    const newUser = await Wrestler_Hall.create({
+      name: name,
+      image: image,
+      weight: weight,
+      success_rate: success_rate,
     });
     console.log("User added successfully!");
     res.status(200).json({ status: true });
@@ -120,7 +151,7 @@ const uploadAdminEvents = async (req, res) => {
 };
 
 const uploadAdminBlogs = async (req, res) => {
-  const {  title, image, description } = req.body; // Destructure the fields directly
+  const { title, image, description } = req.body; // Destructure the fields directly
 
   // const name = req.body.name
 
@@ -138,10 +169,9 @@ const uploadAdminBlogs = async (req, res) => {
     // Create the new user
 
     const newUser = await AdminBlogs.create({
-     
-      title : title,
-      image : image,
-      description : description,
+      title: title,
+      image: image,
+      description: description,
     });
     console.log("User added successfully!");
     res.status(200).json({ status: true });
@@ -151,4 +181,12 @@ const uploadAdminBlogs = async (req, res) => {
   }
 };
 
-module.exports = { getUser, loginUser, getUser,uploadAdminNews,uploadAdminEvents,uploadAdminBlogs };
+module.exports = {
+  getUser,
+  loginUser,
+  getUser,
+  uploadAdminHallofFame,
+  uploadAdminNews,
+  uploadAdminEvents,
+  uploadAdminBlogs,
+};

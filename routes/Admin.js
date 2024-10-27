@@ -5,6 +5,7 @@ const {
   loginUser,
   uploadAdminEvents,
   uploadAdminBlogs,
+  uploadAdminHallofFame,
 } = require("../controllers/adminController");
 const AdminUsers = require("../models/AdminUser");
 
@@ -16,6 +17,8 @@ Auth.post("/adminlogin", loginUser);
 Auth.post("/adminUploadNews", uploadAdminNews);
 
 Auth.post("/adminUploadEvents", uploadAdminEvents);
+
+Auth.post("/adminUploadWrestlersHallFame", uploadAdminHallofFame);
 
 Auth.post("/adminUploadBlogs", uploadAdminBlogs);
 
