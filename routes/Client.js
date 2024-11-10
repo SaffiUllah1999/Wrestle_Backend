@@ -10,18 +10,19 @@ const {
   GetAllEvents,
   GetAllBlogs,
   GetHallFame,
-  BookSeats
+  BookSeats,
+  GetAllBookingsByEmail,
 } = require("../controllers/userController");
 
 const Client = express.Router();
 
 /* GET TODO */
 
-Client.get('/GetNews',GetAllNews )
-Client.get('/GetHallFame',GetHallFame )
-Client.get('/GetEvents', GetAllEvents )
-Client.get('/GetBlogs', GetAllBlogs )
-Client.get('/Bookseats', BookSeats )
-
+Client.get("/GetNews", GetAllNews);
+Client.get("/GetHallFame", GetHallFame);
+Client.get("/GetEvents", GetAllEvents);
+Client.get("/GetBlogs", GetAllBlogs);
+Client.post("/Bookseats", BookSeats);
+Client.post("/GetAllBookings", GetAllBookingsByEmail);
 
 module.exports = Client;

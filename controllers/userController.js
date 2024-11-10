@@ -4,12 +4,30 @@ const Users = require("../models/Users");
 const AdminEvents = require("../models/AdminEvents");
 const AdminBlogs = require("../models/AdminBlogs");
 const Wrestler_Hall = require("../models/WrestlerHallfame");
+const UserBooking = require("../models/UserBooking");
 
 /* GET ALL TODOS */
 const getUser = async (req, res) => {
   const todo = await Users.find();
   res.send(todo);
 };
+
+// Function to drop the unique email index
+const dropEmailIndex = async () => {
+  try {
+    await UserBooking.collection.dropIndex("email_1");
+    console.log("Dropped email unique index.");
+  } catch (error) {
+    if (error.codeName === 'IndexNotFound') {
+      console.log("Index not found, nothing to drop.");
+    } else {
+      console.error("Error dropping index:", error);
+    }
+  }
+};
+
+// Call the function when starting the server
+dropEmailIndex();
 
 /* SAVE A TODO */
 const saveUser = async (req, res) => {
@@ -142,6 +160,23 @@ const GetAllEvents = async (req, res) => {
   }
 };
 
+const GetEventById = async (req, res) => {
+  try {
+    const eventId = req.params._id; // Get the event ID from the request parameters
+    const event = await AdminEvents.findById(eventId); // Fetch the event from the database using _id
+    
+    if (!event) {
+      return res.status(404).json({ message: "Event not found" }); // If no event found, send 404 response
+    }
+
+    res.status(200).json(event); // Send the found event as a JSON response
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Server Error"); // Send an error response if something goes wrong
+  }
+};
+
+
 const GetAllBlogs = async (req, res) => {
   try {
     const users = await AdminBlogs.find({}); // Fetch all users from the database
@@ -153,37 +188,82 @@ const GetAllBlogs = async (req, res) => {
 };
 
 const BookSeats = async (req, res) => {
-
-  const { eventId, name, email , seatsToBook } = req.body;
+  const { _id, name, email, seats } = req.body;
 
   try {
-    const event = await AdminEvents.findById(eventId);
+    // Find the event by ID
+    const event = await AdminEvents.findById(_id);
 
+    // Check if the event exists
     if (!event) {
-      return res.status(404).json({ message: 'Event not found' });
+      return res.status(404).json({ message: "Event not found" });
     }
 
-    if (event.seats < seatsToBook) {
-      return res.status(400).json({ message: 'Not enough seats available' });
+    // Check for seat availability
+    if (event.seats < seats) {
+      return res.status(400).json({ message: "Not enough seats available" });
     }
-    
 
     // Update the available seats
-    event.seats -= seatsToBook;
+    console.log(_id, name, email, seats, "Left Seats:", event.seats);
+    event.seats -= seats;
     await event.save();
 
-    const newBooking = new UserBooking({
+    // Check for existing booking
+    const existingBooking = await UserBooking.findOne({ email, event_id: _id });
+    if (existingBooking) {
+      return res.status(400).json({ message: "You have already booked seats for this event." });
+    }
+
+    // Create a new booking with the current date in YYYY-MM-DDXX:XX format
+    const currentDate = new Date();
+    const formattedDate = currentDate.toISOString().replace("T", "").slice(0, 13) + ":" + currentDate.getMinutes().toString().padStart(2, '0'); // Format YYYY-MM-DDHH:MM
+
+    const newBooking = await UserBooking.create({
       name,
       email,
-      event_id: eventId,
-      seats: seatsToBook,
+      event_id: _id,
+      seats: seats,
+      date: formattedDate, // Use the formatted date
     });
 
-    res.status(200).json({ message: 'Seats booked successfully', event });
+    // Respond with success message and booking details
+    res.status(201).json({ message: "Seats booked successfully", booking: newBooking });
   } catch (error) {
-    res.status(500).json({ message: 'Error booking seats', error });
+    console.error(error); // Log the error for debugging
+    res.status(500).json({ message: "Error booking seats", error: error.message });
   }
-}
+};
+
+
+
+
+const GetAllBookingsByEmail = async (req, res) => {
+  console.log(req.body);
+  const { email } = req.body; // Get the email from the route parameters
+
+  try {
+    // Fetch all bookings for the specified email
+    const bookings = await UserBooking.find({ email }); // Optionally populate event details
+
+    console.log(bookings);
+
+    // Check if there are any bookings for the email
+    if (bookings.length === 0) {
+      return res
+        .status(400)
+        .json({ message: "No bookings found for this email." });
+    }
+
+    // Respond with the list of bookings
+    res.status(200).json(bookings);
+  } catch (error) {
+    console.error(error); // Log the error for debugging
+    res
+      .status(500)
+      .json({ message: "Error retrieving bookings", error: error.message });
+  }
+};
 
 module.exports = {
   GetHallFame,
@@ -196,5 +276,7 @@ module.exports = {
   GetAllNews,
   GetAllEvents,
   GetAllBlogs,
-  BookSeats
+  BookSeats,
+  GetAllBookingsByEmail,
+  GetEventById
 };

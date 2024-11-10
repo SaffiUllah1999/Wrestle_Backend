@@ -34,6 +34,7 @@ const saveWrestlerUser = async (req, res) => {
       name: name,
       email: email,
       password: password,
+      profileStatus : "0" // 0 for notApproved & 1 for approved profile
     });
     console.log("User added successfully!");
     res.status(200).json({ status: true });
@@ -79,6 +80,7 @@ const loginWrestlerUser = async (req, res) => {
         id: user._id,
         name: user.name,
         email: user.email,
+        status: user.profileStatus
       },
     });
   } catch (error) {
@@ -88,11 +90,40 @@ const loginWrestlerUser = async (req, res) => {
 };
 
 /* UPDATE TODO */
+
 const updateWrestlerUser = async (req, res) => {
-  const { _id, text } = req.body;
-  Wrestler_Users.findByIdAndUpdate(_id, { text })
-    .then(() => res.send("Todo updated successfully"))
-    .catch((err) => console.log(err));
+  const { email, status } = req.body;
+
+  // Validate input
+  if (!email || status === undefined) {
+    return res.status(400).send({ Error: "Email and status are required" });
+  }
+
+  try {
+    // Find the user by email and update their profile status
+    const updatedUser = await Wrestler_Users.findOneAndUpdate(
+      { email },
+      { profileStatus: status },
+    );
+
+    if (!updatedUser) {
+      return res.status(404).send({ Error: "User not found" });
+    }
+
+    // Send the updated user info (excluding password)
+    res.status(200).json({
+      status: true,
+      user: {
+        id: updatedUser._id,
+        name: updatedUser.name,
+        email: updatedUser.email,
+        profileStatus: updatedUser.profileStatus,
+      },
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Server error");
+  }
 };
 
 const getWrestlerUsers = async (req, res) => {
@@ -107,42 +138,46 @@ const getWrestlerUsers = async (req, res) => {
 
 /* DELETE TODO */
 const deleteWrestlerUser = async (req, res) => {
-  const { _id } = req.body;
-  Wrestler_Users.findByIdAndDelete(_id)
+  const { email } = req.body;
+  Wrestler_Users.findOneAndDelete(email)
     .then(() => res.send("Todo deleted successfully"))
     .catch((err) => console.log(err));
 };
 
 const participateWrestleEvent = async (req, res) => {
-  const { name, email } = req.body; // Destructure the fields directly
-
-  // const name = req.body.name
-
-  // console.log("User registration data:", name);
+  const { _id, name, email } = req.body;
 
   try {
-    // Check for existing user
-    const existingUser = await Wrestler_ApplyEvent.findOne({ email });
-    if (existingUser) {
-      return res.status(409).send({ Error: "Email Already Exists!" });
+    // Check if the event exists
+    const event = await AdminEvents.findById(_id);
+    if (!event) {
+      return res.status(404).send({ error: "Event not found" });
     }
 
-    // Hash the password before saving
-    // const hashedPassword = await bcrypt.hash(password, 10);
-    // Create the new user
+    // Check if the wrestler is already in the participants list
+    const existingParticipant = event.participants.find(participant => participant.name === name);
+    if (existingParticipant) {
+      return res.status(409).send({ error: "Wrestler already participating" });
+    }
 
-    const newUser = await Wrestler_ApplyEvent.create({
-      name: name,
-      email: email,
-      password: password,
-    });
-    console.log("User added successfully!");
-    res.status(200).json({ status: true });
+    // Add wrestler name and email to participants
+    event.participants.push({ name, email });
+
+    await event.save();
+
+    console.log("Wrestler added to participants successfully!");
+    res.status(200).json({ status: true, message: "Wrestler added to event." });
   } catch (error) {
     console.error(error);
-    res.status(500).send("Error creating user");
+    res.status(500).send("Error adding wrestler to participants");
   }
 };
+
+
+
+
+
+
 
 module.exports = {
   deleteWrestlerUser,
@@ -151,4 +186,5 @@ module.exports = {
   loginWrestlerUser,
   saveWrestlerUser,
   getWrestlerUser,
+  participateWrestleEvent
 };

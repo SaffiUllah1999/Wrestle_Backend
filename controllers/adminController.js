@@ -88,33 +88,24 @@ const uploadAdminNews = async (req, res) => {
 };
 
 const uploadAdminEvents = async (req, res) => {
-  const { title, image, description } = req.body; // Destructure the fields directly
-
-  // const name = req.body.name
-
-  // console.log("User registration data:", name);
+  const { title, image, description, seats, venue } = req.body; // Destructure the venue field
 
   try {
-    // Check for existing user
-    // const existingUser = await Users.findOne({ email });
-    // if (existingUser) {
-    //   return res.status(409).send({ Error: "Email Already Exists!" });
-    // }
-
-    // Hash the password before saving
-    // const hashedPassword = await bcrypt.hash(password, 10);
-    // Create the new user
-
-    const newUser = await AdminEvents.create({
+    // Create the new event
+    const newEvent = await AdminEvents.create({
       title: title,
       image: image,
       description: description,
+      seats: seats,
+      venue: venue, // Include the venue in the event creation
+      wrestle1:"",
+      wrestle2:""
     });
-    console.log("User added successfully!");
+    console.log("Event added successfully!");
     res.status(200).json({ status: true });
   } catch (error) {
     console.error(error);
-    res.status(500).send("Error creating user");
+    res.status(500).send("Error creating event");
   }
 };
 
@@ -181,6 +172,52 @@ const uploadAdminBlogs = async (req, res) => {
   }
 };
 
+const updateWrestle1 = async (req, res) => {
+  const { _id, name } = req.body;
+
+  try {
+    // Check if the event exists
+    const event = await AdminEvents.findById(_id);
+    if (!event) {
+      return res.status(404).send({ error: "Event not found" });
+    }
+
+    // Update wrestle1
+    event.wrestle1 = name;
+
+    await event.save();
+
+    console.log("Wrestle1 updated successfully!");
+    res.status(200).json({ status: true, message: "Wrestle1 updated." });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Error updating wrestle1");
+  }
+};
+
+const updateWrestle2 = async (req, res) => {
+  const { _id, name } = req.body;
+
+  try {
+    // Check if the event exists
+    const event = await AdminEvents.findById(_id);
+    if (!event) {
+      return res.status(404).send({ error: "Event not found" });
+    }
+
+    // Update wrestle1
+    event.wrestle2 = name;
+
+    await event.save();
+
+    console.log("Wrestle2 updated successfully!");
+    res.status(200).json({ status: true, message: "Wrestle2 updated." });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Error updating wrestle1");
+  }
+};
+
 module.exports = {
   getUser,
   loginUser,
@@ -189,4 +226,6 @@ module.exports = {
   uploadAdminNews,
   uploadAdminEvents,
   uploadAdminBlogs,
+  updateWrestle1,
+  updateWrestle2,
 };

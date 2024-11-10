@@ -8,17 +8,26 @@ const userSchema = new mongoose.Schema({
   image: {
     type: String,
     required: true,
-    required: true,
   },
   description: {
     type: String,
     required: true,
   },
-  seats : {
-    type : Number,
-    require: true
-  }
-
+  seats: {
+    type: Number,
+    required: true,
+  },
+  venue: {
+    type: String,
+    required: true,
+  },
+  wrestle1: {
+    type: String,
+  },
+  wrestle2: {
+    type: String,
+  },
+  participants: [{ name: String, email: String }]
 });
 
 const AdminEvents = mongoose.model("events", userSchema);

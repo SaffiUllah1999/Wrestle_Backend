@@ -8,17 +8,18 @@ const userSchema = new mongoose.Schema({
   email: {
     type: String,
     required: true,
-    unique: true,
   },
   event_id: {
     type: String,
     required: true,
-    unique: true,
   },
   seats: {
     type: Number,
     require: true,
   },
+  date : {
+    type: String,
+  }
 });
 
 const UserBooking = mongoose.model("booking", userSchema);

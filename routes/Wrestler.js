@@ -6,6 +6,7 @@ const {
   loginWrestlerUser,
   saveWrestlerUser,
   getWrestlerUser,
+  participateWrestleEvent,
 } = require("../controllers/wrestlerController");
 
 const Wrestler = express.Router();
@@ -19,6 +20,8 @@ Wrestler.get("/Wrestlergetusers", getWrestlerUser);
 
 /* ADD TODO */
 Wrestler.post("/Wrestlerregister", saveWrestlerUser);
+
+Wrestler.post("/WrestlerParticipate", participateWrestleEvent);
 
 // Wrestler.get("/GetNews", GetAllNews);
 // Wrestler.get("/GetEvents", GetAllEvents);
