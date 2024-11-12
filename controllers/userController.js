@@ -188,6 +188,7 @@ const GetAllBlogs = async (req, res) => {
 };
 
 const BookSeats = async (req, res) => {
+ 
   const { _id, name, email, seats } = req.body;
 
   try {
@@ -212,7 +213,7 @@ const BookSeats = async (req, res) => {
     // Check for existing booking
     const existingBooking = await UserBooking.findOne({ email, event_id: _id });
     if (existingBooking) {
-      return res.status(400).json({ message: "You have already booked seats for this event." });
+      return res.status(400).json({  message: "You have already booked seats for this event." });
     }
 
     // Create a new booking with the current date in YYYY-MM-DDXX:XX format
@@ -228,7 +229,7 @@ const BookSeats = async (req, res) => {
     });
 
     // Respond with success message and booking details
-    res.status(201).json({ message: "Seats booked successfully", booking: newBooking });
+    res.status(201).json({ status:true, message: "Seats booked successfully", booking: newBooking });
   } catch (error) {
     console.error(error); // Log the error for debugging
     res.status(500).json({ message: "Error booking seats", error: error.message });

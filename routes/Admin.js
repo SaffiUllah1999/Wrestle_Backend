@@ -8,6 +8,8 @@ const {
   uploadAdminHallofFame,
   updateWrestle1,
   updateWrestle2,
+  addProducts,
+  getAllProducts,
   
 } = require("../controllers/adminController");
 const AdminUsers = require("../models/AdminUser");
@@ -43,6 +45,10 @@ Auth.post("/adminUpdateWrestler1", updateWrestle1);
 Auth.post("/adminUpdateWrestler2", updateWrestle2);
 
 Auth.post("/getEventByID", GetEventById);
+
+Auth.post("/uploadProducts", addProducts);
+
+Auth.get("/getProducts", getAllProducts);
 
 
 

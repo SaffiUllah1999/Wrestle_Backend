@@ -5,24 +5,24 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  email: {
+  price: {
     type: String,
     required: true,
   },
-  event_id: {
+  image :{
     type: String,
     required: true,
-    unique:false
   },
-  seats: {
-    type: Number,
+
+  category: {
+    type: String,
     require: true,
   },
-  date : {
+  date_Added: {
     type: String,
-  }
+  },
 });
 
-const UserBooking = mongoose.model("booking", userSchema);
+const Products = mongoose.model("products", userSchema);
 
-module.exports = UserBooking;
+module.exports = Products;

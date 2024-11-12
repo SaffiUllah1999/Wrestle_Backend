@@ -4,6 +4,7 @@ const AdminNews = require("../models/AdminNews");
 const AdminEvents = require("../models/AdminEvents");
 const AdminBlogs = require("../models/AdminBlogs");
 const Wrestler_Hall = require("../models/WrestlerHallfame");
+const Products = require("../models/Products");
 
 /* GET ALL TODOS */
 const getUser = async (req, res) => {
@@ -98,8 +99,8 @@ const uploadAdminEvents = async (req, res) => {
       description: description,
       seats: seats,
       venue: venue, // Include the venue in the event creation
-      wrestle1:"",
-      wrestle2:""
+      wrestle1: "",
+      wrestle2: "",
     });
     console.log("Event added successfully!");
     res.status(200).json({ status: true });
@@ -218,6 +219,38 @@ const updateWrestle2 = async (req, res) => {
   }
 };
 
+const addProducts = async (req, res) => {
+  try {
+    const { name, price,image, category } = req.body;
+    const date_Added = new Date().toISOString(); // Set the date added to the current date
+
+    const product = new Products({
+      name,
+      price,
+      image,
+      category,
+      date_Added,
+    });
+
+    const savedProduct = await product.save();
+    res.status(201).json(savedProduct);
+  } catch (error) {
+    res
+      .status(500)
+      .json({ error: "Error adding product", details: error.message });
+  }
+};
+
+const getAllProducts = async (req, res) => {
+  try {
+    const products = await Products.find();
+    res.status(200).json(products);
+  } catch (error) {
+    res.status(500).json({ error: "Error fetching products", details: error.message });
+  }
+};
+
+
 module.exports = {
   getUser,
   loginUser,
@@ -228,4 +261,6 @@ module.exports = {
   uploadAdminBlogs,
   updateWrestle1,
   updateWrestle2,
+  addProducts,
+  getAllProducts
 };
