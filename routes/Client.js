@@ -12,12 +12,14 @@ const {
   GetHallFame,
   BookSeats,
   GetAllBookingsByEmail,
+  Logout,
 } = require("../controllers/userController");
 
 const Client = express.Router();
 
 /* GET TODO */
 
+Client.post("/Logout",Logout)
 Client.get("/GetNews", GetAllNews);
 Client.get("/GetHallFame", GetHallFame);
 Client.get("/GetEvents", GetAllEvents);

@@ -10,7 +10,13 @@ const {
   updateWrestle2,
   addProducts,
   getAllProducts,
-  
+  deleteAdminEvent,
+  createBid,
+  getBid,
+  getBidsByWrestleName,
+  getAllBids,
+  deleteAdminNews,
+  deleteAdminBlogs,
 } = require("../controllers/adminController");
 const AdminUsers = require("../models/AdminUser");
 const {
@@ -44,13 +50,27 @@ Auth.post("/adminUpdateWrestler1", updateWrestle1);
 
 Auth.post("/adminUpdateWrestler2", updateWrestle2);
 
+Auth.delete("/deleteEvent/:eventId", deleteAdminEvent);
+
 Auth.post("/getEventByID", GetEventById);
 
 Auth.post("/uploadProducts", addProducts);
 
 Auth.get("/getProducts", getAllProducts);
 
+Auth.post("/createBid", createBid);
 
+Auth.get("/getBid", getBid);
+
+Auth.post("/createBid", createBid);
+
+Auth.get("/getBidbyName", getBidsByWrestleName);
+
+Auth.get("/getAllBids", getAllBids);
+
+Auth.delete("/deleteNews/:id", deleteAdminNews);
+
+Auth.delete("/deleteBlogs/:id", deleteAdminBlogs);
 
 /* ADD TODO */
 

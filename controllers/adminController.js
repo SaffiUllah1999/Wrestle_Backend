@@ -5,6 +5,9 @@ const AdminEvents = require("../models/AdminEvents");
 const AdminBlogs = require("../models/AdminBlogs");
 const Wrestler_Hall = require("../models/WrestlerHallfame");
 const Products = require("../models/Products");
+const AdminBidding = require("../models/AdminBidding");
+
+
 
 /* GET ALL TODOS */
 const getUser = async (req, res) => {
@@ -110,6 +113,57 @@ const uploadAdminEvents = async (req, res) => {
   }
 };
 
+const deleteAdminNews = async (req, res) => {
+  const { eventId } = req.params; // Get the event ID from the route parameters
+
+  console.log(req.params)
+
+  try {
+    // Find the event by ID
+    const event = await AdminNews.findByIdAndDelete(eventId);
+
+    if (!event) {
+      // If event not found, return a 404 error
+      return res.status(404).json({ status: false, message: "Event not found" });
+    }
+
+    // Delete the event
+    // await event.destroy();
+
+    console.log(`Event with ID ${event.title} deleted successfully!`);
+    res.status(200).json({ status: true, message: "Event deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting event:", error);
+    res.status(500).json({ status: false, message: "Error deleting event" });
+  }
+};
+
+
+const deleteAdminEvent = async (req, res) => {
+  const { eventId } = req.params; // Get the event ID from the route parameters
+
+  console.log(req.params)
+
+  try {
+    // Find the event by ID
+    const event = await AdminEvents.findByIdAndDelete(eventId);
+
+    if (!event) {
+      // If event not found, return a 404 error
+      return res.status(404).json({ status: false, message: "Event not found" });
+    }
+
+    // Delete the event
+    // await event.destroy();
+
+    console.log(`Event with ID ${eventId} deleted successfully!`);
+    res.status(200).json({ status: true, message: "Event deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting event:", error);
+    res.status(500).json({ status: false, message: "Error deleting event" });
+  }
+};
+
 const uploadAdminHallofFame = async (req, res) => {
   const { name, image, weight, success_rate } = req.body; // Destructure the fields directly
 
@@ -170,6 +224,31 @@ const uploadAdminBlogs = async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).send("Error creating user");
+  }
+};
+
+const deleteAdminBlogs = async (req, res) => {
+  const { eventId } = req.params; // Get the event ID from the route parameters
+
+  console.log(req.params)
+
+  try {
+    // Find the event by ID
+    const event = await AdminBlogs.findByIdAndDelete(eventId);
+
+    if (!event) {
+      // If event not found, return a 404 error
+      return res.status(404).json({ status: false, message: "Event not found" });
+    }
+
+    // Delete the event
+    // await event.destroy();
+
+    console.log(`Event with ID ${event.title} deleted successfully!`);
+    res.status(200).json({ status: true, message: "Event deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting event:", error);
+    res.status(500).json({ status: false, message: "Error deleting event" });
   }
 };
 
@@ -250,8 +329,200 @@ const getAllProducts = async (req, res) => {
   }
 };
 
+const createBid = async (req, res) => {
+  const { wrestleName, image, startingBid, duration } = req.body; // `duration` in minutes
+
+  try {
+    const startTime = new Date();
+    const endTime = new Date(startTime.getTime() + duration * 60 * 1000); // Calculate end time
+
+    const newBid = await AdminBidding.create({
+      wrestleName,
+      startingBid,
+      image,
+      currentBid: startingBid, // Initialize current bid
+      startTime,
+      endTime,
+    });
+
+    res.status(201).json({
+      success: true,
+      message: "Bid created successfully",
+      data: newBid,
+    });
+  } catch (error) {
+    console.error("Error creating bid:", error);
+    res.status(500).json({ success: false, message: "Bid creation failed" });
+  }
+};
+
+const getBidsByWrestleName = async (req, res) => {
+  const { wrestleName } = req.query; // Get `wrestleName` from query parameters
+
+  try {
+    if (!wrestleName) {
+      return res.status(400).json({
+        success: false,
+        message: "wrestleName query parameter is required",
+      });
+    }
+
+    // Find bids with the given wrestleName
+    const bids = await AdminBidding.find({ wrestleName });
+
+    if (bids.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: `No bids found for wrestleName: ${wrestleName}`,
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      data: bids,
+    });
+  } catch (error) {
+    console.error("Error fetching bids:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error fetching bids",
+    });
+  }
+};
+
+const getBid = async (req, res) => {
+  try {
+    const bid = req.bid; // Retrieved by middleware
+    res.status(200).json({ success: true, data: bid });
+  } catch (error) {
+    console.error("Error retrieving bid:", error);
+    res.status(500).json({ success: false, message: "Internal server error" });
+  }
+};
+
+const checkBidStatus = async (req, res, next) => {
+  const { bidId } = req.params;
+
+  try {
+    const bid = await AdminBidding.findById(bidId);
+
+    if (!bid) {
+      return res.status(404).json({ success: false, message: "Bid not found" });
+    }
+
+    const now = new Date();
+
+    if (now > bid.endTime) {
+      if (bid.status !== "closed") {
+        // Update the bid status to closed
+        bid.status = "closed";
+        await bid.save();
+      }
+      return res.status(400).json({
+        success: false,
+        message: "Bidding time has expired",
+      });
+    }
+
+    req.bid = bid; // Attach the bid to the request for further use
+    next();
+  } catch (error) {
+    console.error("Error checking bid status:", error);
+    res.status(500).json({ success: false, message: "Internal server error" });
+  }
+};
+
+const getAllBids = async (req, res) => {
+  try {
+    // Fetch all bids from the database
+    const bids = await AdminBidding.find({});
+
+    if (bids.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "No bids found",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      data: bids,
+    });
+  } catch (error) {
+    console.error("Error fetching all bids:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error fetching bids",
+    });
+  }
+};
+
+const placeBid = async (req, res) => {
+  const { _id, currentBid } = req.body;
+
+  console.log(req.body)
+
+  try {
+    // Validate inputs
+    if (!_id || !currentBid) {
+      return res.status(400).json({
+        success: false,
+        message: "Bid ID and bid amount are required",
+      });
+    }
+
+    // Fetch the current bid
+    const existingBid = await AdminBidding.findById(_id);
+
+    if (!existingBid) {
+      return res.status(404).json({
+        success: false,
+        message: "Bid not found",
+      });
+    }
+
+    // Check if the bid is still active
+    const currentTime = new Date();
+    if (currentTime > existingBid.endTime) {
+      return res.status(400).json({
+        success: false,
+        message: "Bidding time has ended",
+      });
+    }
+
+    // Validate bid amount
+    if (Number(currentBid) <= Number(existingBid.currentBid)) {
+      return res.status(400).json({
+        success: false,
+        message: "Bid amount must be higher than the current bid",
+      });
+    }
+
+    // Update the current bid
+    existingBid.currentBid = currentBid;
+    await existingBid.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Bid placed successfully",
+      data: existingBid,
+    });
+  } catch (error) {
+    console.error("Error placing bid:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error placing bid",
+    });
+  }
+};
+
+
+
+
 
 module.exports = {
+  getBid,
+  checkBidStatus,
   getUser,
   loginUser,
   getUser,
@@ -262,5 +533,12 @@ module.exports = {
   updateWrestle1,
   updateWrestle2,
   addProducts,
-  getAllProducts
+  deleteAdminEvent,
+  getAllProducts,
+  createBid,
+  getBidsByWrestleName,
+  getAllBids,
+  deleteAdminNews,
+  deleteAdminBlogs,
+  placeBid
 };

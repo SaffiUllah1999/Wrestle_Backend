@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const Franchise = require("../routes/Franchise");
 
 const userSchema = new mongoose.Schema({
   name: {
@@ -17,6 +18,10 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+
+  Franchise: {
+    type: String
+  }
 });
 
 const Wrestler_Hall = mongoose.model("wrestlerHall_of_fame", userSchema);

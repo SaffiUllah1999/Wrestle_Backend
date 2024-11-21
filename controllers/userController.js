@@ -6,6 +6,7 @@ const AdminBlogs = require("../models/AdminBlogs");
 const Wrestler_Hall = require("../models/WrestlerHallfame");
 const UserBooking = require("../models/UserBooking");
 
+
 /* GET ALL TODOS */
 const getUser = async (req, res) => {
   const todo = await Users.find();
@@ -18,7 +19,7 @@ const dropEmailIndex = async () => {
     await UserBooking.collection.dropIndex("email_1");
     console.log("Dropped email unique index.");
   } catch (error) {
-    if (error.codeName === 'IndexNotFound') {
+    if (error.codeName === "IndexNotFound") {
       console.log("Index not found, nothing to drop.");
     } else {
       console.error("Error dropping index:", error);
@@ -64,6 +65,8 @@ const saveUser = async (req, res) => {
 const loginUser = async (req, res) => {
   const { email, password } = req.body;
 
+  console.log(req.session)
+
   console.log("email");
 
   // Validate input
@@ -89,19 +92,40 @@ const loginUser = async (req, res) => {
     //   expiresIn: "1h", // Token expiration time
     // });
 
-    // Send the token and user info (excluding password)
+    req.session.user = {
+      id: user._id,
+      name: user.name,
+      email: user.email,
+    };
+
     res.status(200).json({
       status: true,
+      message: "Login successful",
+      sessionID: req.session.user,
       user: {
         id: user._id,
         name: user.name,
         email: user.email,
       },
     });
+
+   
   } catch (error) {
     console.error(error);
     res.status(500).send("Server error");
   }
+};
+
+const Logout = async (req, res) => {
+  // Logout route
+
+  req.session.destroy((err) => {
+    if (err) {
+      return res.status(500).send("Could not log out.");
+    }
+    res.clearCookie("connect.sid"); // Clear the session cookie
+    res.status(200).send({ status: true, message: "Logged out successfully" });
+  });
 };
 
 /* UPDATE TODO */
@@ -164,7 +188,7 @@ const GetEventById = async (req, res) => {
   try {
     const eventId = req.params._id; // Get the event ID from the request parameters
     const event = await AdminEvents.findById(eventId); // Fetch the event from the database using _id
-    
+
     if (!event) {
       return res.status(404).json({ message: "Event not found" }); // If no event found, send 404 response
     }
@@ -175,7 +199,6 @@ const GetEventById = async (req, res) => {
     res.status(500).send("Server Error"); // Send an error response if something goes wrong
   }
 };
-
 
 const GetAllBlogs = async (req, res) => {
   try {
@@ -188,7 +211,6 @@ const GetAllBlogs = async (req, res) => {
 };
 
 const BookSeats = async (req, res) => {
- 
   const { _id, name, email, seats } = req.body;
 
   try {
@@ -213,12 +235,17 @@ const BookSeats = async (req, res) => {
     // Check for existing booking
     const existingBooking = await UserBooking.findOne({ email, event_id: _id });
     if (existingBooking) {
-      return res.status(400).json({  message: "You have already booked seats for this event." });
+      return res
+        .status(400)
+        .json({ message: "You have already booked seats for this event." });
     }
 
     // Create a new booking with the current date in YYYY-MM-DDXX:XX format
     const currentDate = new Date();
-    const formattedDate = currentDate.toISOString().replace("T", "").slice(0, 13) + ":" + currentDate.getMinutes().toString().padStart(2, '0'); // Format YYYY-MM-DDHH:MM
+    const formattedDate =
+      currentDate.toISOString().replace("T", "").slice(0, 13) +
+      ":" +
+      currentDate.getMinutes().toString().padStart(2, "0"); // Format YYYY-MM-DDHH:MM
 
     const newBooking = await UserBooking.create({
       name,
@@ -229,15 +256,20 @@ const BookSeats = async (req, res) => {
     });
 
     // Respond with success message and booking details
-    res.status(201).json({ status:true, message: "Seats booked successfully", booking: newBooking });
+    res
+      .status(201)
+      .json({
+        status: true,
+        message: "Seats booked successfully",
+        booking: newBooking,
+      });
   } catch (error) {
     console.error(error); // Log the error for debugging
-    res.status(500).json({ message: "Error booking seats", error: error.message });
+    res
+      .status(500)
+      .json({ message: "Error booking seats", error: error.message });
   }
 };
-
-
-
 
 const GetAllBookingsByEmail = async (req, res) => {
   console.log(req.body);
@@ -279,5 +311,6 @@ module.exports = {
   GetAllBlogs,
   BookSeats,
   GetAllBookingsByEmail,
-  GetEventById
+  GetEventById,
+  Logout 
 };

@@ -6,6 +6,7 @@ const Auth = require("./routes/Authentication");
 const Admin = require("./routes/Admin");
 const Client = require("./routes/Client");
 const Wrestler = require("./routes/Wrestler");
+const session = require("express-session");
 
 dotenv.config();
 
@@ -37,11 +38,43 @@ mongoose
     console.log("Unable to connect to MongoDB:", err);
   });
 
+app.use(
+  session({
+    secret: "your_session_secret", // Replace with a secure secret
+    resave: false,
+    saveUninitialized: true,
+    cookie: { secure: false, httpOnly: true }, // Set `secure: true` in production with HTTPS
+  })
+);
+
+const cron = require("node-cron"); // for closing the bid automatically
+const AdminBidding = require("./models/AdminBidding");
+const Franchise = require("./routes/Franchise");
+
+cron.schedule("*/1 * * * *", async () => {
+  // Runs every minute
+  try {
+    const now = new Date();
+    const expiredBids = await AdminBidding.updateMany(
+      { endTime: { $lte: now }, status: "active" },
+      { $set: { status: "closed" } }
+    );
+
+    console.log(`${expiredBids.nModified} bids were closed due to expiry.`);
+  } catch (error) {
+    console.error("Error closing expired bids:", error);
+  }
+});
+
 /* ROUTES */
+
 app.use(Auth);
 app.use(Admin);
 app.use(Client);
 app.use(Wrestler);
+app.use(Franchise)
+
+// Middleware to set up sessions
 
 /* LISTENING */
 app.listen(PORT, () => {
