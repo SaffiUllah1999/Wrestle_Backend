@@ -13,7 +13,7 @@ const getWrestlerUser = async (req, res) => {
 
 /* SAVE A TODO */
 const saveWrestlerUser = async (req, res) => {
-  const { name, email, password } = req.body; // Destructure the fields directly
+  const { name, email, password, image } = req.body; // Destructure the fields directly
 
   // const name = req.body.name
 
@@ -34,6 +34,7 @@ const saveWrestlerUser = async (req, res) => {
       name: name,
       email: email,
       password: password,
+      image : image,
       profileStatus : "0" // 0 for notApproved & 1 for approved profile
     });
     console.log("User added successfully!");
@@ -80,6 +81,7 @@ const loginWrestlerUser = async (req, res) => {
         id: user._id,
         name: user.name,
         email: user.email,
+        image: user.image,
         status: user.profileStatus
       },
     });
@@ -145,7 +147,9 @@ const deleteWrestlerUser = async (req, res) => {
 };
 
 const participateWrestleEvent = async (req, res) => {
-  const { _id, name, email } = req.body;
+  const { _id, name, email , image } = req.body;
+
+  console.log(name,image)
 
   try {
     // Check if the event exists
@@ -161,7 +165,7 @@ const participateWrestleEvent = async (req, res) => {
     }
 
     // Add wrestler name and email to participants
-    event.participants.push({ name, email });
+    event.participants.push({ name, email,image });
 
     await event.save();
 

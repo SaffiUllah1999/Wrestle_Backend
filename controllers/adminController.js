@@ -253,7 +253,7 @@ const deleteAdminBlogs = async (req, res) => {
 };
 
 const updateWrestle1 = async (req, res) => {
-  const { _id, name } = req.body;
+  const { _id, name,email, image } = req.body;
 
   try {
     // Check if the event exists
@@ -264,6 +264,7 @@ const updateWrestle1 = async (req, res) => {
 
     // Update wrestle1
     event.wrestle1 = name;
+    event.wrestlers.push({ name, email,image });
 
     await event.save();
 

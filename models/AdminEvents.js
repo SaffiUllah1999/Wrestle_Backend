@@ -27,7 +27,11 @@ const userSchema = new mongoose.Schema({
   wrestle2: {
     type: String,
   },
-  participants: [{ name: String, email: String }]
+  noFights:{
+    type: String,
+  },
+  participants: [{ name: String, email: String, image: String }],
+  wrestlers: [{ name: String, email: String, image: String }],
 });
 
 const AdminEvents = mongoose.model("events", userSchema);
