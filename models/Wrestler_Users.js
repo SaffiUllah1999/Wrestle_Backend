@@ -10,6 +10,15 @@ const userSchema = new mongoose.Schema({
     required: true,
     unique: true,
   },
+  age: {
+    type:String,
+  },
+  bio: {
+    type:String,
+  },
+  achievements: {
+    type:String,
+  },
   password: {
     type: String,
     required: true,

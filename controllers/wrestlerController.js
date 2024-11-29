@@ -149,7 +149,6 @@ const deleteWrestlerUser = async (req, res) => {
 const participateWrestleEvent = async (req, res) => {
   const { _id, name, email , image } = req.body;
 
-  console.log(name,image)
 
   try {
     // Check if the event exists

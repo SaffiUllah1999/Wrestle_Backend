@@ -27,9 +27,10 @@ const userSchema = new mongoose.Schema({
   wrestle2: {
     type: String,
   },
-  noFights:{
+  noFights: {
     type: String,
   },
+  dateEvent: { type: String },
   participants: [{ name: String, email: String, image: String }],
   wrestlers: [{ name: String, email: String, image: String }],
 });

@@ -6,6 +6,7 @@ const AdminBlogs = require("../models/AdminBlogs");
 const Wrestler_Hall = require("../models/WrestlerHallfame");
 const Products = require("../models/Products");
 const AdminBidding = require("../models/AdminBidding");
+const Wrestler_Users = require("../models/Wrestler_Users");
 
 
 
@@ -92,7 +93,7 @@ const uploadAdminNews = async (req, res) => {
 };
 
 const uploadAdminEvents = async (req, res) => {
-  const { title, image, description, seats, venue } = req.body; // Destructure the venue field
+  const { title, image, description,dateEvent, seats, venue } = req.body; // Destructure the venue field
 
   try {
     // Create the new event
@@ -102,6 +103,7 @@ const uploadAdminEvents = async (req, res) => {
       description: description,
       seats: seats,
       venue: venue, // Include the venue in the event creation
+      dateEvent: dateEvent,
       wrestle1: "",
       wrestle2: "",
     });
@@ -114,13 +116,13 @@ const uploadAdminEvents = async (req, res) => {
 };
 
 const deleteAdminNews = async (req, res) => {
-  const { eventId } = req.params; // Get the event ID from the route parameters
+  const { id } = req.params; // Get the event ID from the route parameters
 
   console.log(req.params)
 
   try {
     // Find the event by ID
-    const event = await AdminNews.findByIdAndDelete(eventId);
+    const event = await AdminNews.findByIdAndDelete(id);
 
     if (!event) {
       // If event not found, return a 404 error
@@ -228,13 +230,13 @@ const uploadAdminBlogs = async (req, res) => {
 };
 
 const deleteAdminBlogs = async (req, res) => {
-  const { eventId } = req.params; // Get the event ID from the route parameters
+  const { id } = req.params; // Get the event ID from the route parameters
 
   console.log(req.params)
 
   try {
     // Find the event by ID
-    const event = await AdminBlogs.findByIdAndDelete(eventId);
+    const event = await AdminBlogs.findByIdAndDelete(id);
 
     if (!event) {
       // If event not found, return a 404 error
@@ -517,6 +519,78 @@ const placeBid = async (req, res) => {
   }
 };
 
+const getEventsByWrestlerEmail = async (req, res) => {
+  const { email } = req.body;  // Assuming email is passed as a query parameter
+
+  console.log(email)
+
+  try {
+    // Find events where the wrestler's email exists in the wrestlers array
+    const events = await AdminEvents.find({
+      "wrestlers.email": email,  // Check if email exists in the wrestlers array
+    });
+
+    if (!events || events.length === 0) {
+      return res.status(404).send({ error: "No events found for this wrestler." });
+    }
+
+    res.status(200).json({ status: true, events });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Error fetching events for the wrestler");
+  }
+};
+
+
+const UpdateProfile =  async (req, res) => {
+  const { email, age, bio, achievements, image } = req.body;
+
+  try {
+    // Find the user by email
+    const user = await Wrestler_Users.findOne({ email });
+
+    // If user is not found
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Update the fields
+    user.age = age || user.age;  // If no new value provided, retain the old value
+    user.bio = bio || user.bio;
+    user.achievements = achievements || user.achievements;
+    user.image = image || user.image;
+
+    // Save the updated user
+    await user.save();
+
+    res.status(200).json({ status : true, message: "Profile updated successfully", user });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ message: "Server error" });
+  }
+}
+const getWrestleProfile =   async (req, res) => {
+  const { email } = req.body;
+
+  try {
+    // Find the user by email
+    const user = await Wrestler_Users.findOne({ email });
+
+    // If user is not found
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // If user is found, return the user data
+    res.status(200).json({ status: true, message: "User data retrieved successfully", user });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ message: "Server error" });
+  }
+}
+
+
+
 
 
 
@@ -539,7 +613,10 @@ module.exports = {
   createBid,
   getBidsByWrestleName,
   getAllBids,
+  getWrestleProfile,
   deleteAdminNews,
   deleteAdminBlogs,
-  placeBid
+  placeBid,
+  getEventsByWrestlerEmail,
+  UpdateProfile
 };
